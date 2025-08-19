@@ -1,13 +1,18 @@
-
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const authRoutes = require("./routes/auth");
+const parentformRoutes = require("./routes/parentform");
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: "*", // Or specify your frontend URL (e.g., "http://localhost:3000")
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 app.use(express.json());
 
 // Database connection
@@ -21,9 +26,9 @@ app.get("/", (req, res) => {
   res.send("EduShine Backend is running ✅");
 });
 
-
 //api routes
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/parentform", parentformRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;
