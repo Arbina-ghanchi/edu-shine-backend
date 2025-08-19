@@ -1,7 +1,16 @@
 const express = require("express");
 const router = express.Router();
+const {
+  createStudentForm,
+  getAllStudentForms,
+  getStudentFormById,
+} = require("../controllers/studentFormController");
 
-router.post("/studentform");
-router.get("/studentform");
+// Student Form Routes
+router.post("/", createStudentForm);
+router.get("/", getAllStudentForms);
+router.get("/:id", getStudentFormById);
 
-module.exports = router;
+module.exports = router; //take this and impor in index 
+
+
