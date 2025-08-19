@@ -9,7 +9,7 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "*", // Or specify your frontend URL (e.g., "http://localhost:3000")
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
@@ -31,7 +31,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/parentform", parentformRoutes);
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port http://localhost:${PORT}`);
 });
