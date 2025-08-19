@@ -3,7 +3,7 @@ const {
   hashPassword,
   comparePassword,
   generateToken,
-} = require("../utils/auth"); // Adjust path to your utils
+} = require("../utils/auth");
 
 // Signup Controller
 exports.signup = async (req, res) => {
@@ -136,6 +136,128 @@ exports.signin = async (req, res) => {
     });
   } catch (error) {
     console.error("Signin error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// // Get User Profile Controller
+exports.getProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User profile retrieved successfully",
+      data: {
+        user,
+      },
+    });
+  } catch (error) {
+    console.error("Get profile error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// Update User Profile Controller
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { fullName, description } = req.body;
+
+    if (!fullName && !description) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Please provide at least one field to update: fullName or description",
+      });
+    }
+
+    const updateData = {};
+    if (fullName) updateData.fullName = fullName;
+    if (description !== undefined) updateData.description = description;
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: {
+        user: updatedUser,
+      },
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// Delete Account Controller
+exports.deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide password to confirm account deletion",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const isPasswordValid = await comparePassword(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid password. Account deletion failed",
+      });
+    }
+
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "Account deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete account error:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
