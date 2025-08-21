@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const parentSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true,
+  },// this is reference for all the user model we have created 
   // Parent Information
   parentName: {
     type: String,
@@ -20,7 +24,7 @@ const parentSchema = new mongoose.Schema({
     required: true,
   },
   occupation: String,
-  
+
   // Student Information
   studentName: {
     type: String,
@@ -42,7 +46,7 @@ const parentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  
+
   // Academic Requirements
   subjectsNeeded: {
     type: String,
@@ -58,7 +62,7 @@ const parentSchema = new mongoose.Schema({
     required: true,
   },
   previousTutoringExperience: String,
-  
+
   // Tuition Preferences
   preferredMode: {
     type: String,
@@ -80,13 +84,13 @@ const parentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  
+
   // Teacher Preferences
   teacherGenderPreference: String,
   teacherExperiencePreference: String,
   teachingStylePreference: String,
   languagePreference: String,
-  
+
   // Logistics
   homeAddress: String,
   willingToTravel: String,
@@ -97,7 +101,7 @@ const parentSchema = new mongoose.Schema({
   internetConnection: String,
   deviceAvailable: String,
   additionalRequirements: String,
-  
+
   // Timestamps
   updatedAt: {
     type: Date,

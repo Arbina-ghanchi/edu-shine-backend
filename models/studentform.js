@@ -1,116 +1,120 @@
 const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true,
+  },
   studentName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   fatherName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   fatherMobile: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   motherName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   motherMobile: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   address: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   fatherOccupation: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   motherOccupation: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   siblings: {
     type: String,
-    trim: true
+    trim: true,
   },
   requirements: {
     type: String,
-    trim: true
+    trim: true,
   },
   admissionFor: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   schoolBoard: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   subjects: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   lectureDuration: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   preferredDays: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   preferredTime: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   numberOfDays: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   strongestSubject: {
     type: String,
-    trim: true
+    trim: true,
   },
   weakestSubject: {
     type: String,
-    trim: true
+    trim: true,
   },
   specialRemarks: {
     type: String,
-    trim: true
+    trim: true,
   },
   lastYearPercentage: {
     type: String,
-    trim: true
+    trim: true,
   },
   referenceFrom: {
     type: String,
-    trim: true
+    trim: true,
   },
   preferableTeacher: {
     type: String,
-    trim: true
+    trim: true,
   },
   joinSpokenEnglish: {
     type: Boolean,
-    default: false
+    default: false,
   },
   updatedAt: {
     type: Date,

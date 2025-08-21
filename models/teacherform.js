@@ -1,163 +1,195 @@
 const mongoose = require("mongoose");
 
 const teacherSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true,
+  },
   // Personal Information
   fullName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   email: {
     type: String,
     required: true,
     trim: true,
     lowercase: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address']
+    match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
   },
   phone: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   alternatePhone: {
     type: String,
-    trim: true
+    trim: true,
   },
   address: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   gender: {
     type: String,
     required: true,
-    enum: ['Male', 'Female', 'Other', 'Prefer not to say']
+    enum: ["Male", "Female", "Other", "Prefer not to say"],
   },
   dateOfBirth: {
     type: Date,
-    required: true
+    required: true,
   },
-  
+
   // Professional Information
   highestQualification: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   currentProfession: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   yearsOfExperience: {
     type: String,
     required: true,
-    enum: ['Less than 1 year', '1-3 years', '3-5 years', '5-10 years', '10+ years']
+    enum: [
+      "Less than 1 year",
+      "1-3 years",
+      "3-5 years",
+      "5-10 years",
+      "10+ years",
+    ],
   },
   teachingCertifications: {
     type: String,
-    trim: true
+    trim: true,
   },
   languagesSpoken: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
-  
+
   // Subject Expertise
   primarySubjects: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   secondarySubjects: {
     type: String,
-    trim: true
+    trim: true,
   },
   gradeLevelsTaught: {
     type: String,
     required: true,
-    enum: ['Primary (1-5)', 'Middle School (6-8)', 'High School (9-10)', 'Higher Secondary (11-12)', 'College/University', 'All Levels']
+    enum: [
+      "Primary (1-5)",
+      "Middle School (6-8)",
+      "High School (9-10)",
+      "Higher Secondary (11-12)",
+      "College/University",
+      "All Levels",
+    ],
   },
   curriculumExpertise: {
     type: String,
     required: true,
-    enum: ['CBSE', 'ICSE', 'State Board', 'IGCSE', 'IB', 'Multiple']
+    enum: ["CBSE", "ICSE", "State Board", "IGCSE", "IB", "Multiple"],
   },
   teachingMethodology: {
     type: String,
-    trim: true
+    trim: true,
   },
-  
+
   // Availability
   teachingMode: {
     type: String,
     required: true,
-    enum: ['Home Tuition', 'Online Classes', 'Both']
+    enum: ["Home Tuition", "Online Classes", "Both"],
   },
-  availableDays: [{
-    type: String,
-    enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-  }],
+  availableDays: [
+    {
+      type: String,
+      enum: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
+    },
+  ],
   availableTimeSlots: {
     type: String,
     required: true,
-    enum: ['Morning (6 AM - 12 PM)', 'Afternoon (12 PM - 5 PM)', 'Evening (5 PM - 9 PM)', 'Flexible']
+    enum: [
+      "Morning (6 AM - 12 PM)",
+      "Afternoon (12 PM - 5 PM)",
+      "Evening (5 PM - 9 PM)",
+      "Flexible",
+    ],
   },
   preferredSessionDuration: {
     type: String,
     required: true,
-    enum: ['1 Hour', '1.5 Hours', '2 Hours']
+    enum: ["1 Hour", "1.5 Hours", "2 Hours"],
   },
-  
+
   // Tuition Preferences
   minimumFee: {
     type: Number,
     required: true,
-    min: [0, 'Fee cannot be negative']
+    min: [0, "Fee cannot be negative"],
   },
   preferredPaymentMethod: {
     type: String,
     required: true,
-    enum: ['Cash', 'Bank Transfer', 'UPI', 'Cheque']
+    enum: ["Cash", "Bank Transfer", "UPI", "Cheque"],
   },
   travelRadius: {
     type: String,
-    enum: ['Up to 2 km', 'Up to 5 km', 'Up to 10 km', 'Beyond 10 km']
+    enum: ["Up to 2 km", "Up to 5 km", "Up to 10 km", "Beyond 10 km"],
   },
   onlineTeachingTools: {
     type: String,
-    trim: true
+    trim: true,
   },
-  
+
   // Additional Information
   bio: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   teachingPhilosophy: {
     type: String,
-    trim: true
+    trim: true,
   },
   achievements: {
     type: String,
-    trim: true
+    trim: true,
   },
   references: {
     type: String,
-    trim: true
+    trim: true,
   },
-  
+
   // Status and Timestamps
   applicationStatus: {
     type: String,
-    enum: ['Pending', 'Under Review', 'Approved', 'Rejected'],
-    default: 'Pending'
+    enum: ["Pending", "Under Review", "Approved", "Rejected"],
+    default: "Pending",
   },
   isActive: {
     type: Boolean,
-    default: true
+    default: true,
   },
   updatedAt: {
     type: Date,
@@ -178,7 +210,7 @@ teacherSchema.index({ availableDays: 1 });
 teacherSchema.index({ applicationStatus: 1 });
 
 // Pre-save middleware to update the updatedAt field
-teacherSchema.pre('save', function(next) {
+teacherSchema.pre("save", function (next) {
   if (this.isModified() && !this.isNew) {
     this.updatedAt = Date.now();
   }
