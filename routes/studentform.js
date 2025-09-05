@@ -11,6 +11,6 @@ router.post("/", createStudentForm);
 router.get("/", getAllStudentForms);
 router.get("/:id", getStudentFormById);
 
-module.exports = router; //take this and impor in index 
+module.exports = router; //take this and imp
 
 

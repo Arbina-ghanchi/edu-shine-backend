@@ -4,8 +4,7 @@ const parentSchema = new mongoose.Schema({
   userId: {
     type: String,
     required: true,
-  },// this is reference for all the user model we have created 
-  // Parent Information
+  },
   parentName: {
     type: String,
     required: true,
