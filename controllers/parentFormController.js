@@ -1,18 +1,19 @@
 const parentform = require("../models/parentform");
 
-// Create a new parent form entry
-// In your parent form controller file
 exports.createParentForm = async (req, res) => {
   try {
     const userId = req.user._id;
-    console.log(userId, "check if id is coming");
+
     const parentFormData = {
       ...req.body,
-      user: userId,
+      userId,
     };
 
-    const parentForm = new parentform(parentFormData);
-    await parentForm.save();
+    const parentForm = await parentform.findOneAndUpdate(
+      { userId },
+      parentFormData,
+      { new: true, upsert: true, runValidators: true }
+    );
 
     res.status(201).json({
       success: true,
@@ -20,6 +21,7 @@ exports.createParentForm = async (req, res) => {
       data: parentForm,
     });
   } catch (error) {
+    console.error("Error submitting parent form:", error);
     res.status(400).json({
       success: false,
       message: "Error submitting parent form",
@@ -28,15 +30,15 @@ exports.createParentForm = async (req, res) => {
   }
 };
 
-//get my all form
 exports.getMyAllForm = async (req, res) => {
   try {
+    const userId = req.user._id;
+
     const parentForms = await parentform
-      .find({ userId: req.params.id })
+      .find({ userId })
       .sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
-      count: parentForms.length,
       data: parentForms,
     });
   } catch (error) {
@@ -48,13 +50,11 @@ exports.getMyAllForm = async (req, res) => {
   }
 };
 
-// Get all parent form entries
 exports.getAllParentForms = async (req, res) => {
   try {
     const parentForms = await parentform.find().sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
-      count: parentForms.length,
       data: parentForms,
     });
   } catch (error) {
@@ -66,7 +66,30 @@ exports.getAllParentForms = async (req, res) => {
   }
 };
 
-// Get single parent form by ID
+exports.checkParentForm = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const parentForm = await parentform.findOne(userId);
+
+    if (!parentForm) {
+      return res.status(404).json({
+        success: false,
+        message: "Parent form not found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: parentForm,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching parent form",
+      error: error.message,
+    });
+  }
+};
+
 exports.getParentFormById = async (req, res) => {
   try {
     const parentForm = await parentform.findById(req.params.id);

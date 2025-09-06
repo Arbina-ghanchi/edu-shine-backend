@@ -5,12 +5,14 @@ const {
   getAllParentForms,
   getParentFormById,
   getMyAllForm,
+  checkParentForm,
 } = require("../controllers/parentFormController");
 const authMiddleware = require("../utils/authMIddlware");
 
 // Parent Form Routes
 router.post("/", authMiddleware, createParentForm);
-router.get("/my-all-form/:id", getMyAllForm);
+router.get("/my-form", authMiddleware, getMyAllForm);
+router.get("/check-form-submit", authMiddleware, checkParentForm);
 
 router.get("/", getAllParentForms);
 router.get("/:id", getParentFormById);
