@@ -3,7 +3,9 @@ const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
+
+// we have removed this feature as high security is not needed
+// const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
 
 // Hash password
 exports.hashPassword = async (password) => {
@@ -18,9 +20,7 @@ exports.comparePassword = async (enteredPassword, hashedPassword) => {
 
 // Generate JWT token
 exports.generateToken = (user) => {
-  return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
-    expiresIn: JWT_EXPIRES_IN,
-  });
+  return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET);
 };
 
 // Verify JWT token

@@ -9,114 +9,80 @@ const studentSchema = new mongoose.Schema({
   studentName: {
     type: String,
     required: true,
-    trim: true,
   },
-  fatherName: {
+  studentAge: {
+    type: Number,
+    required: true,
+  },
+  studentGrade: {
     type: String,
     required: true,
-    trim: true,
   },
-  fatherMobile: {
+  currentSchool: {
     type: String,
     required: true,
-    trim: true,
   },
-  motherName: {
+  studentGender: {
     type: String,
     required: true,
-    trim: true,
   },
-  motherMobile: {
+
+  // Academic Requirements
+  subjectsNeeded: {
     type: String,
     required: true,
-    trim: true,
   },
-  address: {
+  currentAcademicLevel: {
     type: String,
     required: true,
-    trim: true,
   },
-  fatherOccupation: {
+  specificChallenges: String,
+  learningGoals: {
     type: String,
     required: true,
-    trim: true,
   },
-  motherOccupation: {
+  previousTutoringExperience: String,
+
+  // Tuition Preferences
+  preferredMode: {
     type: String,
     required: true,
-    trim: true,
-  },
-  siblings: {
-    type: String,
-    trim: true,
-  },
-  requirements: {
-    type: String,
-    trim: true,
-  },
-  admissionFor: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  schoolBoard: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  subjects: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  lectureDuration: {
-    type: String,
-    required: true,
-    trim: true,
   },
   preferredDays: {
     type: String,
     required: true,
-    trim: true,
   },
   preferredTime: {
     type: String,
     required: true,
-    trim: true,
   },
-  numberOfDays: {
+  sessionDuration: {
     type: String,
     required: true,
-    trim: true,
   },
-  strongestSubject: {
+  budgetRange: {
     type: String,
-    trim: true,
+    required: true,
   },
-  weakestSubject: {
-    type: String,
-    trim: true,
-  },
-  specialRemarks: {
-    type: String,
-    trim: true,
-  },
-  lastYearPercentage: {
-    type: String,
-    trim: true,
-  },
-  referenceFrom: {
-    type: String,
-    trim: true,
-  },
-  preferableTeacher: {
-    type: String,
-    trim: true,
-  },
-  joinSpokenEnglish: {
+
+  // Logistics
+  homeAddress: String,
+  willingToTravel: String,
+  hasStudyRoom: {
     type: Boolean,
     default: false,
   },
+  internetConnection: String,
+  deviceAvailable: String,
+  additionalRequirements: String,
+
+  // Link back to Parent
+  parentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ParentForm",
+    required: true,
+  },
+
   updatedAt: {
     type: Date,
     default: Date.now,
@@ -127,4 +93,4 @@ const studentSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("StudentForm", studentSchema);
+module.exports = mongoose.model("Student", studentSchema);
