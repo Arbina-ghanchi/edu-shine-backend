@@ -30,7 +30,7 @@ exports.createParentForm = async (req, res) => {
     });
   }
 };
-
+// parent dashboard with students
 exports.getParentFormByUser = async (req, res) => {
   try {
     const userId = req.user._id;
