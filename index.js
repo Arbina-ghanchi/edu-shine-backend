@@ -2,10 +2,17 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const authRoutes = require("./routes/auth");
-const parentformRoutes = require("./routes/parentform");
+
+// logger imports
 const logger = require("./utils/logger");
 const loggingMiddleware = require("./utils/loggerMiddleware");
+
+// users imports
+const authRoutes = require("./routes/auth");
+const parentformRoutes = require("./routes/parentform");
+
+//admin imports
+const adminRoutes = require("./routes/admin.routes");
 
 const app = express();
 
@@ -13,9 +20,6 @@ const app = express();
 app.use(
   cors({
     origin: "*",
-    // credentials: true,
-    // methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    // allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -39,6 +43,9 @@ app.get("/", (req, res) => {
 // API routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/parentform", parentformRoutes);
+
+//admin routes
+app.use("/api/v1/admin", adminRoutes);
 
 // 404 handler where is frontend
 app.use((req, res) => {

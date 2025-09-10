@@ -14,7 +14,6 @@ const parentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  alternatePhone: String,
   address: {
     type: String,
     required: true,
