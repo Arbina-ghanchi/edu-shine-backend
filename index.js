@@ -10,6 +10,7 @@ const loggingMiddleware = require("./utils/loggerMiddleware");
 // users imports
 const authRoutes = require("./routes/auth");
 const parentformRoutes = require("./routes/parentform");
+const teacherformRoutes = require("./routes/teacherform");
 
 //admin imports
 const adminRoutes = require("./routes/admin.routes");
@@ -43,6 +44,7 @@ app.get("/", (req, res) => {
 // API routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/parentform", parentformRoutes);
+app.use("/api/v1/teacherform", teacherformRoutes);
 
 //admin routes
 app.use("/api/v1/admin", adminRoutes);

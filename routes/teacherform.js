@@ -6,13 +6,17 @@ const {
   getTeacherFormById,
   updateTeacherForm,
   deleteTeacherForm,
+  checkTeacherForm,
 } = require("../controllers/teacherFormController");
+const authMiddleware = require("../utils/authMIddlware");
 
 // Teacher Form Routes
-router.post("/", createTeacherForm);
-router.get("/", getAllTeacherForms);
-router.get("/:id", getTeacherFormById);
-router.put("/:id", updateTeacherForm);
+router.post("/", authMiddleware, createTeacherForm);
+// router.get("/", authMiddleware, getAllTeacherForms);
+router.get("/", authMiddleware, getTeacherFormById);
 router.delete("/:id", deleteTeacherForm);
+
+// check teacher form by ID
+router.get("/check-teacher-form", authMiddleware, checkTeacherForm);
 
 module.exports = router;

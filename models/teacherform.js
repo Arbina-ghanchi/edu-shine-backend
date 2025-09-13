@@ -11,20 +11,9 @@ const teacherSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  email: {
-    type: String,
-    required: true,
-    trim: true,
-    lowercase: true,
-    match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
-  },
   phone: {
     type: String,
     required: true,
-    trim: true,
-  },
-  alternatePhone: {
-    type: String,
     trim: true,
   },
   address: {
@@ -176,12 +165,6 @@ const teacherSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
-  references: {
-    type: String,
-    trim: true,
-  },
-
-  // Status and Timestamps
   applicationStatus: {
     type: String,
     enum: ["Pending", "Under Review", "Approved", "Rejected"],
@@ -202,7 +185,6 @@ const teacherSchema = new mongoose.Schema({
 });
 
 // Create indexes for better query performance
-teacherSchema.index({ email: 1 });
 teacherSchema.index({ phone: 1 });
 teacherSchema.index({ teachingMode: 1 });
 teacherSchema.index({ primarySubjects: 1 });

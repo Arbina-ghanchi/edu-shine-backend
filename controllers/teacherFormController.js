@@ -1,16 +1,28 @@
 const teacherform = require("../models/teacherform");
 
-// Create a new teacher form entry 
+// Create a new teacher form entry
 exports.createTeacherForm = async (req, res) => {
   try {
-    const teacherForm = new teacherform(req.body);
-    await teacherForm.save();
+    const userId = req.user._id;
+    console.log(userId, "chec user");
+    const teacherFormData = {
+      ...req.body,
+      userId,
+    };
+
+    const teacherForm = await teacherform.findOneAndUpdate(
+      { userId },
+      teacherFormData,
+      { new: true, upsert: true, runValidators: true }
+    );
+
     res.status(201).json({
       success: true,
       message: "Teacher form submitted successfully",
       data: teacherForm,
     });
   } catch (error) {
+    console.error("Error submitting teacher form:", error);
     res.status(400).json({
       success: false,
       message: "Error submitting teacher form",
@@ -40,21 +52,26 @@ exports.getAllTeacherForms = async (req, res) => {
 // Get single teacher form by ID
 exports.getTeacherFormById = async (req, res) => {
   try {
-    const teacherForm = await teacherform.findById(req.params.id);
-    if (!teacherForm) {
+    const userId = req.user._id;
+    const parentForm = await teacherform.findOne({ userId }).populate("userId");
+
+    if (!parentForm) {
       return res.status(404).json({
         success: false,
-        message: "Teacher form not found",
+        message: "No parent form found for this user",
       });
     }
+
     res.status(200).json({
       success: true,
-      data: teacherForm,
+      message: "Parent form fetched successfully",
+      data: parentForm,
     });
   } catch (error) {
+    console.error("Error fetching parent form:", error);
     res.status(500).json({
       success: false,
-      message: "Error fetching teacher form",
+      message: "Error fetching parent form",
       error: error.message,
     });
   }
@@ -107,6 +124,31 @@ exports.deleteTeacherForm = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error deleting teacher form",
+      error: error.message,
+    });
+  }
+};
+
+// check teacher form by ID
+exports.checkTeacherForm = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const teacherForm = await teacherform?.findOne(userId);
+    console.log(teacherForm, "parentForm");
+    if (!teacherForm) {
+      return res.status(404).json({
+        success: false,
+        message: "Parent form not found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: teacherForm,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching parent form",
       error: error.message,
     });
   }
