@@ -64,12 +64,12 @@ const teacherSchema = new mongoose.Schema({
   },
 
   // Subject Expertise
-  primarySubjects: {
+  primarySubject: {
     type: String,
     required: true,
     trim: true,
   },
-  secondarySubjects: {
+  secondarySubject: {
     type: String,
     trim: true,
   },

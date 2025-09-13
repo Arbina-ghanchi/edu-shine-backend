@@ -13,7 +13,6 @@ exports.getAllUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Get all users error:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -33,7 +32,6 @@ exports.getAllTeacher = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Get all teacher forms error:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -78,7 +76,6 @@ exports.getTeacherByUserId = async (req, res) => {
       path: "userId",
       select: "-password", // Exclude password field for security
     });
-    console.log(teacherForm, "teacherForm");
     if (!teacherForm) {
       return res.status(404).json({
         success: false,
@@ -114,8 +111,8 @@ exports.getTeacherByUserId = async (req, res) => {
         languagesSpoken: teacherForm.languagesSpoken,
 
         // Subject Expertise
-        primarySubjects: teacherForm.primarySubjects,
-        secondarySubjects: teacherForm.secondarySubjects,
+        primarySubjects: teacherForm.primarySubject,
+        secondarySubjects: teacherForm.secondarySubject,
         gradeLevelsTaught: teacherForm.gradeLevelsTaught,
         curriculumExpertise: teacherForm.curriculumExpertise,
         teachingMethodology: teacherForm.teachingMethodology,
@@ -152,7 +149,6 @@ exports.getTeacherByUserId = async (req, res) => {
       data: teacherDetails,
     });
   } catch (error) {
-    console.error("Get teacher by user ID error:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -163,7 +159,6 @@ exports.getTeacherByUserId = async (req, res) => {
 
 // get all students
 exports.getAllStudents = async (req, res) => {
-  
   try {
     const users = await user.find({ role: "student" });
     res.status(200).json({
@@ -174,7 +169,6 @@ exports.getAllStudents = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Get all students error:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -184,11 +178,9 @@ exports.getAllStudents = async (req, res) => {
 };
 // get all parents
 exports.getAllParent = async (req, res) => {
-  console.log("check for hit");
   try {
     const users = await user?.find({ role: "parent" });
 
-    console.log(users, "check for user ");
     res.status(200).json({
       success: true,
       message: "All teacher forms retrieved successfully",
@@ -197,7 +189,6 @@ exports.getAllParent = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Get all teacher forms error:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
