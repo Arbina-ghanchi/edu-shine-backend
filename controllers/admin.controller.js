@@ -160,3 +160,48 @@ exports.getTeacherByUserId = async (req, res) => {
     });
   }
 };
+
+// get all students
+exports.getAllStudents = async (req, res) => {
+  
+  try {
+    const users = await user.find({ role: "student" });
+    res.status(200).json({
+      success: true,
+      message: "All students retrieved successfully",
+      data: {
+        users,
+      },
+    });
+  } catch (error) {
+    console.error("Get all students error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+// get all parents
+exports.getAllParent = async (req, res) => {
+  console.log("check for hit");
+  try {
+    const users = await user?.find({ role: "parent" });
+
+    console.log(users, "check for user ");
+    res.status(200).json({
+      success: true,
+      message: "All teacher forms retrieved successfully",
+      data: {
+        users,
+      },
+    });
+  } catch (error) {
+    console.error("Get all teacher forms error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
