@@ -31,8 +31,11 @@ const assignmentSchema = new mongoose.Schema({
   teachingMedium: {
     type: String,
     required: true,
-    enum: ["Online", "Offline", "Hybrid"],
+    enum: ["Home Tuition", "Online Classes", "Both"],
     default: "Offline",
+  },
+  Teaching_Batch: {
+    type: String,
   },
   startDate: {
     type: Date,

@@ -1,6 +1,7 @@
 const user = require("../models/user");
 const teacherform = require("../models/teacherform");
 const { default: mongoose } = require("mongoose");
+const studentform = require("../models/studentform");
 
 exports.getAllUser = async (req, res) => {
   try {
@@ -24,11 +25,14 @@ exports.getAllUser = async (req, res) => {
 exports.getAllTeacher = async (req, res) => {
   try {
     const users = await user.find({ role: "teacher" });
+
+    const teacherForms = await teacherform.find({ userId: { $in: users } });
     res.status(200).json({
       success: true,
       message: "All teacher forms retrieved successfully",
       data: {
         users,
+        teacherForms,
       },
     });
   } catch (error) {
@@ -161,11 +165,13 @@ exports.getTeacherByUserId = async (req, res) => {
 exports.getAllStudents = async (req, res) => {
   try {
     const users = await user.find({ role: "student" });
+    const studentForms = await studentform.find({ userId: { $in: users } });
     res.status(200).json({
       success: true,
       message: "All students retrieved successfully",
       data: {
         users,
+        studentForms,
       },
     });
   } catch (error) {

@@ -6,9 +6,8 @@ exports.createAssignment = async (req, res) => {
   try {
     const {
       teacherId,
-      studentIds, // Array of student IDs
+      studentIds,
       teacherAssigned,
-      childAssigned,
       subject,
       teachingMedium,
       endDate,
@@ -17,17 +16,19 @@ exports.createAssignment = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (
-      !teacherId ||
-      !studentIds ||
-      !teacherAssigned ||
-      !childAssigned ||
-      !subject
-    ) {
+    if (!teacherId || !studentIds || !teacherAssigned || !subject) {
       return res.status(400).json({
         success: false,
         message:
-          "Missing required fields: teacherId, studentIds, teacherAssigned, childAssigned, subject",
+          "Missing required fields: teacherId, studentIds, teacherAssigned, subject",
+      });
+    }
+
+    // Check if studentIds is an array and has at least one student
+    if (!Array.isArray(studentIds) || studentIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "studentIds must be an array with at least one student ID",
       });
     }
 
@@ -68,21 +69,11 @@ exports.createAssignment = async (req, res) => {
       });
     }
 
-    // Check if childAssigned user exists
-    const assignedChild = await user.findById(childAssigned);
-    if (!assignedChild) {
-      return res.status(404).json({
-        success: false,
-        message: "Child assigned user not found",
-      });
-    }
-
     // Create new assignment
     const assignment = new assignmentModel({
       teacherId,
       studentId: studentIds,
       teacherAssigned,
-      childAssigned,
       subject,
       teachingMedium: teachingMedium || "Offline",
       endDate,
@@ -94,7 +85,7 @@ exports.createAssignment = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "assignmentModel created successfully",
+      message: "Assignment created successfully",
       data: {
         assignment: savedAssignment,
       },
@@ -107,7 +98,6 @@ exports.createAssignment = async (req, res) => {
     });
   }
 };
-
 // Get all teachers who are assigned to students
 exports.getAssignedTeachers = async (req, res) => {
   try {
