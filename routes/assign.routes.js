@@ -6,9 +6,11 @@ const {
   getAssignmentsByTeacher,
   getAssignmentsByStudent,
   updateAssignmentStatus,
+  getAssignmentFormData,
 } = require("../controllers/teacherassign.controller");
 
-router.post("/assignments", createAssignment);
+router.route("/assignments").get(getAssignmentFormData).post(createAssignment);
+
 router.get("/assignments/teachers", getAssignedTeachers);
 router.get("/assignments/teacher/:teacherId", getAssignmentsByTeacher);
 router.get("/assignments/student/:studentId", getAssignmentsByStudent);

@@ -17,14 +17,24 @@ const LOG_LEVELS = {
   HTTP: "HTTP",
 };
 
-// Colors for console output
+// Enhanced colors for better console output
 const COLORS = {
   reset: "\x1b[0m",
   bright: "\x1b[1m",
+  dim: "\x1b[2m",
+
+  // Background colors
+  bgRed: "\x1b[41m",
+  bgYellow: "\x1b[43m",
+  bgBlue: "\x1b[44m",
+  bgGreen: "\x1b[42m",
+  bgMagenta: "\x1b[45m",
+
+  // Text colors
   red: "\x1b[31m",
-  green: "\x1b[32m",
   yellow: "\x1b[33m",
   blue: "\x1b[34m",
+  green: "\x1b[32m",
   magenta: "\x1b[35m",
   cyan: "\x1b[36m",
   white: "\x1b[37m",
@@ -39,23 +49,23 @@ class Logger {
   }
 
   getTimestamp() {
-    return new Date().toISOString();
+    return new Date().toLocaleString(); // More readable format
   }
 
   getColorForLevel(level) {
     switch (level) {
       case LOG_LEVELS.ERROR:
-        return COLORS.red;
+        return { bg: COLORS.bgRed, text: COLORS.white, label: "🔴 ERROR" };
       case LOG_LEVELS.WARN:
-        return COLORS.yellow;
+        return { bg: COLORS.bgYellow, text: COLORS.white, label: "🟡 WARN" };
       case LOG_LEVELS.INFO:
-        return COLORS.green;
+        return { bg: COLORS.bgBlue, text: COLORS.white, label: "🔵 INFO" };
       case LOG_LEVELS.DEBUG:
-        return COLORS.blue;
+        return { bg: COLORS.bgMagenta, text: COLORS.white, label: "🟣 DEBUG" };
       case LOG_LEVELS.HTTP:
-        return COLORS.magenta;
+        return { bg: COLORS.bgGreen, text: COLORS.white, label: "🌐 HTTP" };
       default:
-        return COLORS.white;
+        return { bg: "", text: COLORS.white, label: level };
     }
   }
 
@@ -76,16 +86,49 @@ class Logger {
     });
   }
 
-  log(level, message, data = null) {
+  formatConsoleOutput(level, message, data = null) {
     const timestamp = this.getTimestamp();
-    const color = this.getColorForLevel(level);
+    const colors = this.getColorForLevel(level);
+
+    // Format the level badge
+    const levelBadge = `${colors.bg}${colors.text}${COLORS.bright} ${colors.label} ${COLORS.reset}`;
+
+    // Format timestamp
+    const timeFormatted = `${COLORS.dim}${timestamp}${COLORS.reset}`;
+
+    // Format message
+    const messageFormatted = `${COLORS.bright}${message}${COLORS.reset}`;
+
+    // Main log line
+    console.log(`${levelBadge} ${timeFormatted} - ${messageFormatted}`);
+
+    // Additional data if present
+    if (data) {
+      const dataColor = level === LOG_LEVELS.ERROR ? COLORS.red : COLORS.cyan;
+      console.log(`${COLORS.dim}↳ Data:${COLORS.reset}`);
+      console.log(
+        `${dataColor}${JSON.stringify(data, null, 2)}${COLORS.reset}`
+      );
+    }
+  }
+
+  log(level, message, data = null) {
+    // Console output
+    this.formatConsoleOutput(level, message, data);
 
     // File output
     this.writeToFile(level, message, data);
   }
 
   error(message, error = null) {
-    this.log(LOG_LEVELS.ERROR, message, error);
+    const errorData = error
+      ? {
+          message: error.message,
+          stack: error.stack,
+          ...(error.code && { code: error.code }),
+        }
+      : null;
+    this.log(LOG_LEVELS.ERROR, message, errorData);
   }
 
   warn(message, data = null) {

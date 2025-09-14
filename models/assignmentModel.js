@@ -18,11 +18,6 @@ const assignmentSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  childAssigned: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
   subject: {
     type: String,
     required: true,
@@ -32,7 +27,7 @@ const assignmentSchema = new mongoose.Schema({
     type: String,
     required: true,
     enum: ["Home Tuition", "Online Classes", "Both"],
-    default: "Offline",
+    default: "Home Tuition",
   },
   Teaching_Batch: {
     type: String,
@@ -41,9 +36,9 @@ const assignmentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  endDate: {
-    type: Date,
-  },
+  // endDate: {
+  //   type: Date,
+  // },
   status: {
     type: String,
     enum: ["Active", "Completed", "Cancelled"],

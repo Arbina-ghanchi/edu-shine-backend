@@ -1,8 +1,8 @@
 const assignmentModel = require("../models/assignmentModel");
 const user = require("../models/user");
 
-// Create a new assignment
 exports.createAssignment = async (req, res) => {
+  console.log(req?.body);
   try {
     const {
       teacherId,
@@ -10,7 +10,6 @@ exports.createAssignment = async (req, res) => {
       teacherAssigned,
       subject,
       teachingMedium,
-      endDate,
       status,
       notes,
     } = req.body;
@@ -69,26 +68,132 @@ exports.createAssignment = async (req, res) => {
       });
     }
 
-    // Create new assignment
-    const assignment = new assignmentModel({
+    // Check if assignment already exists for this teacher AND subject
+    const existingAssignment = await assignmentModel.findOne({
       teacherId,
-      studentId: studentIds,
-      teacherAssigned,
-      subject,
-      teachingMedium: teachingMedium || "Offline",
-      endDate,
-      status: status || "Active",
-      notes,
+      subject, // Added subject to the query
     });
 
-    const savedAssignment = await assignment.save();
+    let savedAssignment;
 
-    res.status(201).json({
+    if (existingAssignment) {
+      // Update existing assignment - add new students if they're not already assigned
+      const currentStudentIds = existingAssignment.studentId.map((id) =>
+        id.toString()
+      );
+      const newStudentIds = studentIds.filter(
+        (id) => !currentStudentIds.includes(id.toString())
+      );
+
+      // Combine existing and new students
+      const allStudentIds = [...existingAssignment.studentId, ...newStudentIds];
+
+      existingAssignment.teacherAssigned = teacherAssigned;
+      existingAssignment.studentId = allStudentIds;
+      existingAssignment.teachingMedium =
+        teachingMedium || existingAssignment.teachingMedium;
+      existingAssignment.status = status || existingAssignment.status;
+      existingAssignment.notes = notes || existingAssignment.notes;
+      existingAssignment.updatedAt = Date.now();
+
+      savedAssignment = await existingAssignment.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Assignment updated successfully",
+        data: {
+          assignment: savedAssignment,
+        },
+      });
+    } else {
+      // Create new assignment
+      const assignment = new assignmentModel({
+        teacherId,
+        studentId: studentIds,
+        teacherAssigned,
+        subject,
+        teachingMedium: teachingMedium || "Home Tuition",
+        status: status || "Active",
+        notes,
+      });
+
+      savedAssignment = await assignment.save();
+
+      res.status(201).json({
+        success: true,
+        message: "Assignment created successfully",
+        data: {
+          assignment: savedAssignment,
+        },
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// Get assignment data for form based on teacherId and subject
+exports.getAssignmentFormData = async (req, res) => {
+  try {
+    const { teacherId, subject } = req.query;
+
+    // Validate required fields
+    if (!teacherId || !subject) {
+      return res.status(400).json({
+        success: false,
+        message: "teacherId and subject parameters are required",
+      });
+    }
+
+    // Check if teacher exists
+    const teacher = await user.findById(teacherId);
+    if (!teacher || teacher.role !== "teacher") {
+      return res.status(404).json({
+        success: false,
+        message: "Teacher not found or user is not a teacher",
+      });
+    }
+
+    // Find existing assignments for this teacher and subject
+    const existingAssignments = await assignmentModel
+      .find({
+        teacherId,
+        subject,
+      })
+      .select("studentId")
+      .sort({ createdAt: -1 });
+
+    // Extract all assigned student IDs from existing assignments
+    const assignedStudentIds = [];
+
+    existingAssignments.forEach((assignment) => {
+      if (assignment.studentId && Array.isArray(assignment.studentId)) {
+        assignment.studentId.forEach((studentId) => {
+          // Convert ObjectId to string
+          const idString = studentId.toString();
+          if (!assignedStudentIds.includes(idString)) {
+            assignedStudentIds.push(idString);
+          }
+        });
+      }
+    });
+
+    // Prepare response data
+    const formData = {
+      teacherId,
+      subject,
+      studentIds: assignedStudentIds,
+      assignedStudentCount: assignedStudentIds.length,
+    };
+
+    res.status(200).json({
       success: true,
-      message: "Assignment created successfully",
-      data: {
-        assignment: savedAssignment,
-      },
+      message: "Assignment form data retrieved successfully",
+      data: formData,
     });
   } catch (error) {
     res.status(500).json({
@@ -155,7 +260,6 @@ exports.getAssignedTeachers = async (req, res) => {
         teachingMedium: assignment.teachingMedium,
         status: assignment.status,
         startDate: assignment.startDate,
-        endDate: assignment.endDate,
       });
     });
 
@@ -192,10 +296,6 @@ exports.getAssignmentsByTeacher = async (req, res) => {
       .populate({
         path: "teacherAssigned",
         select: "fullName email",
-      })
-      .populate({
-        path: "childAssigned",
-        select: "fullName email",
       });
 
     res.status(200).json({
@@ -228,10 +328,6 @@ exports.getAssignmentsByStudent = async (req, res) => {
       })
       .populate({
         path: "teacherAssigned",
-        select: "fullName email",
-      })
-      .populate({
-        path: "childAssigned",
         select: "fullName email",
       });
 
