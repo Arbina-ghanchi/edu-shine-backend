@@ -95,7 +95,6 @@ exports.createStudent = async (req, res) => {
     const userId = req.user._id;
 
     const userEmail = await User.findById(userId);
-    console.log(userEmail.email, "check the email");
 
     const parent = await parentform.findOne({ userId });
     if (!parent) {

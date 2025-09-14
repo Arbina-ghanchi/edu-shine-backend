@@ -4,7 +4,7 @@ const teacherform = require("../models/teacherform");
 exports.createTeacherForm = async (req, res) => {
   try {
     const userId = req.user._id;
-    console.log(userId, "chec user");
+    (userId, "chec user");
     const teacherFormData = {
       ...req.body,
       userId,
@@ -134,7 +134,6 @@ exports.checkTeacherForm = async (req, res) => {
   try {
     const userId = req.user._id;
     const teacherForm = await teacherform?.findOne(userId);
-    console.log(teacherForm, "parentForm");
     if (!teacherForm) {
       return res.status(404).json({
         success: false,

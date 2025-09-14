@@ -15,6 +15,9 @@ const teacherformRoutes = require("./routes/teacherform");
 //admin imports
 const adminRoutes = require("./routes/admin.routes");
 
+//teacher assignment process
+const assignRoutes = require("./routes/assign.routes");
+
 const app = express();
 
 // Middleware
@@ -48,6 +51,9 @@ app.use("/api/v1/teacherform", teacherformRoutes);
 
 //admin routes
 app.use("/api/v1/admin", adminRoutes);
+
+//teacher assignment process
+app.use("/api/v1/assign", assignRoutes);
 
 // 404 handler where is frontend
 app.use((req, res) => {

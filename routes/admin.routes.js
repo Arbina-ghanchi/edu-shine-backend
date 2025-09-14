@@ -9,14 +9,7 @@ const {
   getAllParent,
 } = require("../controllers/admin.controller");
 
-router.get(
-  "/all-users",
-  (req, res, next) => {
-    console.log("All parents route hit");
-    next();
-  },
-  getAllUser
-);
+router.get("/all-users", getAllUser);
 
 router.get("/all-teachers", getAllTeacher);
 router.get("/all-students", getAllStudents);

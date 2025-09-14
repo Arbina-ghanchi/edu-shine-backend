@@ -80,17 +80,6 @@ class Logger {
     const timestamp = this.getTimestamp();
     const color = this.getColorForLevel(level);
 
-    // Console output
-    console.log(
-      `${COLORS.bright}${timestamp}${COLORS.reset} ` +
-        `${color}[${level}]${COLORS.reset} ` +
-        `${message}`
-    );
-
-    if (data) {
-      console.log(`${color}Data:${COLORS.reset}`, data);
-    }
-
     // File output
     this.writeToFile(level, message, data);
   }
