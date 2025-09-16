@@ -115,3 +115,46 @@ exports.getSubjects = async (req, res) => {
     });
   }
 };
+
+exports.getAllTeacherClasses = async (req, res) => {
+  try {
+    const teacherId = req.user.id;
+
+    // Validate required fields
+    if (!teacherId) {
+      return res.status(400).json({
+        success: false,
+        message: "teacherId is required",
+      });
+    }
+
+    // Check if teacher exists
+    const teacher = await user.findById(teacherId);
+    if (!teacher || teacher.role !== "teacher") {
+      return res.status(404).json({
+        success: false,
+        message: "Teacher not found or user is not a teacher",
+      });
+    }
+
+    // Find existing assignments for this teacher and subject with populated student details
+    const existingAssignments = await assignmentModel
+      .find({
+        teacherId,
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Assignment form data retrieved successfully",
+      data: existingAssignments,
+    });
+  } catch (error) {
+    console.error("Error fetching teacher assignments:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
