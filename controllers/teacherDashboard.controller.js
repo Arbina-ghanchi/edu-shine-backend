@@ -4,19 +4,19 @@ const teacherform = require("../models/teacherform");
 
 exports.getTeacherAssignments = async (req, res) => {
   try {
-    // Get teacherId from authenticated user
-    const teacherId = req.user && req.user.id;
-    const subjects = req.params.subjects;
+    const teacherId = req.user.id;
+    const subject = req.query.subjects;
 
-    if (!teacherId) {
+    // Validate required fields
+    if (!teacherId || !subject) {
       return res.status(400).json({
         success: false,
-        message: "User ID missing from request",
+        message: "teacherId and subject parameters are required",
       });
     }
 
-    // Check if the user is a teacher
-    const teacher = await user?.findById(teacherId);
+    // Check if teacher exists
+    const teacher = await user.findById(teacherId);
     if (!teacher || teacher.role !== "teacher") {
       return res.status(404).json({
         success: false,
@@ -24,36 +24,53 @@ exports.getTeacherAssignments = async (req, res) => {
       });
     }
 
-    // Fetch all assignments for this teacher
-    const assignments = await assignmentModel
-      .find({ teacherId, subject: subjects })
-      .populate("studentId", "fullName email") // populate student details
-      .populate("teacherId", "fullName email"); // populate teacher details
+    // Find existing assignments for this teacher and subject with populated student details
+    const existingAssignments = await assignmentModel
+      .find({
+        teacherId,
+        subject,
+      })
+      .populate({
+        path: "studentId",
+        model: "User", // Make sure this matches your User model name
+        select:
+          "fullName email role grade profilePicture contactInfo createdAt", // Add the fields you want to retrieve
+      })
+      .sort({ createdAt: -1 });
 
-    if (!assignments || assignments.length === 0) {
-      return res.status(200).json({
-        success: true,
-        message: "No assignments found for this teacher",
-        data: [],
-      });
-    }
+    // Extract all unique assigned students with their full details
+    const assignedStudents = [];
+    const assignedStudentIds = new Set(); // Using Set to track unique IDs
 
-    // Prepare a clean response
-    const formattedAssignments = assignments.map((assignment) => ({
-      assignmentId: assignment._id,
-      teacher: assignment.teacherId,
-      subject: assignment.subject,
-      teachingMedium: assignment.teachingMedium,
-      status: assignment.status,
-      notes: assignment.notes,
-      students: assignment.studentId, // populated student data
-      createdAt: assignment.createdAt,
-    }));
+    existingAssignments.forEach((assignment) => {
+      if (assignment.studentId && Array.isArray(assignment.studentId)) {
+        assignment.studentId.forEach((student) => {
+          // Check if student is populated and not already added
+          if (
+            student &&
+            student._id &&
+            !assignedStudentIds.has(student._id.toString())
+          ) {
+            assignedStudentIds.add(student._id.toString());
+            assignedStudents.push(student);
+          }
+        });
+      }
+    });
+
+    // Prepare response data
+    const formData = {
+      teacherId,
+      subject,
+      students: assignedStudents, // Now contains full student objects with details
+      assignedStudentCount: assignedStudents.length,
+      assignments: existingAssignments, // Optional: include the full assignment data if needed
+    };
 
     res.status(200).json({
       success: true,
-      message: "Assignments retrieved successfully",
-      data: formattedAssignments,
+      message: "Assignment form data retrieved successfully",
+      data: formData,
     });
   } catch (error) {
     console.error("Error fetching teacher assignments:", error);
