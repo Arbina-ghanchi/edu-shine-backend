@@ -2,7 +2,6 @@ const assignmentModel = require("../models/assignmentModel");
 const user = require("../models/user");
 
 exports.createAssignment = async (req, res) => {
-  console.log(req?.body);
   try {
     const {
       teacherId,
