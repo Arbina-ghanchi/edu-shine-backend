@@ -10,7 +10,7 @@ const loggingMiddleware = (req, res, next) => {
       method: req.method,
       url: req.originalUrl || req.url,
       ip: req.ip || req.connection?.remoteAddress,
-      // userAgent: req.get("User-Agent") || "Unknown",
+      userAgent: req.get("User-Agent") || "Unknown",
       // headers: Object.keys(req.headers || {}).length ? req.headers : undefined,
       query: Object.keys(req.query || {}).length ? req.query : undefined,
       params: Object.keys(req.params || {}).length ? req.params : undefined,

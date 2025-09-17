@@ -1,6 +1,6 @@
-// utils/logger.js
 const fs = require("fs");
 const path = require("path");
+const { Writable } = require("stream");
 
 // Create logs directory if it doesn't exist
 const logsDir = path.join(__dirname, "../logs");
@@ -8,7 +8,7 @@ if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir, { recursive: true });
 }
 
-// Log levels
+// -------- Log Levels --------
 const LOG_LEVELS = {
   ERROR: "ERROR",
   WARN: "WARN",
@@ -17,20 +17,11 @@ const LOG_LEVELS = {
   HTTP: "HTTP",
 };
 
-// Enhanced colors for better console output
+// -------- Colors (for console only) --------
 const COLORS = {
   reset: "\x1b[0m",
   bright: "\x1b[1m",
   dim: "\x1b[2m",
-
-  // Background colors
-  bgRed: "\x1b[41m",
-  bgYellow: "\x1b[43m",
-  bgBlue: "\x1b[44m",
-  bgGreen: "\x1b[42m",
-  bgMagenta: "\x1b[45m",
-
-  // Text colors
   red: "\x1b[31m",
   yellow: "\x1b[33m",
   blue: "\x1b[34m",
@@ -40,93 +31,96 @@ const COLORS = {
   white: "\x1b[37m",
 };
 
+// -------- Daily Rotating File Stream --------
+class RotatingFileStream extends Writable {
+  constructor(baseName) {
+    super({ objectMode: true });
+    this.baseName = baseName;
+    this.currentDate = this._getDateString();
+    this.stream = this._createStream();
+  }
+
+  _getDateString() {
+    return new Date().toISOString().split("T")[0];
+  }
+
+  _createStream() {
+    const filePath = path.join(
+      logsDir,
+      `${this.baseName}-${this.currentDate}.log`
+    );
+    return fs.createWriteStream(filePath, { flags: "a" });
+  }
+
+  _rotateIfNeeded() {
+    const today = this._getDateString();
+    if (today !== this.currentDate) {
+      this.stream.end();
+      this.currentDate = today;
+      this.stream = this._createStream();
+    }
+  }
+
+  _write(logEntry, _, callback) {
+    this._rotateIfNeeded();
+    this.stream.write(JSON.stringify(logEntry) + "\n", callback);
+  }
+}
+
+// -------- Logger Class --------
 class Logger {
   constructor() {
-    this.logFile = path.join(
-      logsDir,
-      `app-${new Date().toISOString().split("T")[0]}.log`
-    );
+    this.fileStream = new RotatingFileStream("app");
   }
 
   getTimestamp() {
-    return new Date().toLocaleString(); // More readable format
+    return new Date().toISOString(); // strict ISO for files
   }
 
   getColorForLevel(level) {
     switch (level) {
       case LOG_LEVELS.ERROR:
-        return { bg: COLORS.bgRed, text: COLORS.white, label: "🔴 ERROR" };
+        return { color: COLORS.red, label: "🔴 ERROR" };
       case LOG_LEVELS.WARN:
-        return { bg: COLORS.bgYellow, text: COLORS.white, label: "🟡 WARN" };
+        return { color: COLORS.yellow, label: "🟡 WARN" };
       case LOG_LEVELS.INFO:
-        return { bg: COLORS.bgBlue, text: COLORS.white, label: "🔵 INFO" };
+        return { color: COLORS.blue, label: "🔵 INFO" };
       case LOG_LEVELS.DEBUG:
-        return { bg: COLORS.bgMagenta, text: COLORS.white, label: "🟣 DEBUG" };
+        return { color: COLORS.magenta, label: "🟣 DEBUG" };
       case LOG_LEVELS.HTTP:
-        return { bg: COLORS.bgGreen, text: COLORS.white, label: "🌐 HTTP" };
+        return { color: COLORS.green, label: "🌐 HTTP" };
       default:
-        return { bg: "", text: COLORS.white, label: level };
-    }
-  }
-
-  writeToFile(level, message, data = null) {
-    const logEntry = {
-      timestamp: this.getTimestamp(),
-      level,
-      message,
-      data: data || undefined,
-    };
-
-    const logString = JSON.stringify(logEntry) + "\n";
-
-    fs.appendFile(this.logFile, logString, (err) => {
-      if (err) {
-        console.error("Failed to write to log file:", err);
-      }
-    });
-  }
-
-  formatConsoleOutput(level, message, data = null) {
-    const timestamp = this.getTimestamp();
-    const colors = this.getColorForLevel(level);
-
-    // Format the level badge
-    const levelBadge = `${colors.bg}${colors.text}${COLORS.bright} ${colors.label} ${COLORS.reset}`;
-
-    // Format timestamp
-    const timeFormatted = `${COLORS.dim}${timestamp}${COLORS.reset}`;
-
-    // Format message
-    const messageFormatted = `${COLORS.bright}${message}${COLORS.reset}`;
-
-    // Main log line
-    console.log(`${levelBadge} ${timeFormatted} - ${messageFormatted}`);
-
-    // Additional data if present
-    if (data) {
-      const dataColor = level === LOG_LEVELS.ERROR ? COLORS.red : COLORS.cyan;
-      console.log(`${COLORS.dim}↳ Data:${COLORS.reset}`);
-      console.log(
-        `${dataColor}${JSON.stringify(data, null, 2)}${COLORS.reset}`
-      );
+        return { color: COLORS.white, label: level };
     }
   }
 
   log(level, message, data = null) {
-    // Console output
-    this.formatConsoleOutput(level, message, data);
+    const timestamp = this.getTimestamp();
+    const logEntry = { timestamp, level, message, data };
 
-    // File output
-    this.writeToFile(level, message, data);
+    // ---- File Output (JSON) ----
+    this.fileStream.write(logEntry);
+
+    // ---- Console Output (pretty) ----
+    const { color, label } = this.getColorForLevel(level);
+    const baseLine = `${COLORS.dim}${timestamp}${COLORS.reset} ${color}${label}${COLORS.reset} - ${COLORS.bright}${message}${COLORS.reset}`;
+    console.log(baseLine);
+
+    if (data) {
+      const dataColor = level === LOG_LEVELS.ERROR ? COLORS.red : COLORS.cyan;
+      console.log(
+        `${COLORS.dim}↳ Data:${COLORS.reset} ${dataColor}${JSON.stringify(
+          data,
+          null,
+          2
+        )}${COLORS.reset}`
+      );
+    }
   }
 
   error(message, error = null) {
     const errorData = error
-      ? {
-          message: error.message,
-          stack: error.stack,
-          ...(error.code && { code: error.code }),
-        }
+      ? { message: error.message, stack: error.stack, code: error.code }
       : null;
     this.log(LOG_LEVELS.ERROR, message, errorData);
   }
@@ -140,7 +134,7 @@ class Logger {
   }
 
   debug(message, data = null) {
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV !== "production") {
       this.log(LOG_LEVELS.DEBUG, message, data);
     }
   }
@@ -150,6 +144,5 @@ class Logger {
   }
 }
 
-// Create a singleton instance
-const logger = new Logger();
-module.exports = logger;
+// Singleton instance
+module.exports = new Logger();
